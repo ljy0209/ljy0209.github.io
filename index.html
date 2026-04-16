@@ -955,24 +955,24 @@ async function sendMessage() {
   showTyping();
 
   try {
+    const messages = [
+      { role: 'system', content: SYSTEM_PROMPT },
+      ...chatHistory
+    ];
+
     const response = await fetch(WORKER_URL, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({
-        model: 'claude-sonnet-4-20250514',
-        max_tokens: 1000,
-        system: SYSTEM_PROMPT,
-        messages: chatHistory
-      })
+      body: JSON.stringify({ messages })
     });
 
     const data = await response.json();
     removeTyping();
 
-    if (data.content && data.content[0]) {
-      const reply = data.content[0].text;
+    if (data.choices && data.choices[0]) {
+      const reply = data.choices[0].message.content;
       addMessage('bot', reply);
       chatHistory.push({ role: 'assistant', content: reply });
     } else {
